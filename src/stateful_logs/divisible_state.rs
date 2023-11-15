@@ -40,6 +40,23 @@ pub struct DivisibleStatePersistentLog<S: DivisibleState, D: ApplicationData,
     inner_log: PersistentLog<D, OPM, POPT, LS, STM>,
 }
 
+pub fn initialize_div_persistent_log<S, D, K, T, OPM, POPT, LS, STM, PS, PSP, DLPH>(executor: ExecutorHandle<D>, db_path: K)
+                                                                                          -> Result<DivisibleStatePersistentLog<S, D, OPM, POPT, LS, STM>>
+    where S: DivisibleState + 'static,
+          D: ApplicationData + 'static,
+          K: AsRef<Path>,
+          T: PersistentLogModeTrait,
+          OPM: OrderingProtocolMessage<D> + 'static,
+          POPT: PersistentOrderProtocolTypes<D, OPM> + 'static,
+          LS: DecisionLogMessage<D, OPM, POPT> + 'static,
+          STM: StateTransferMessage + 'static,
+          PS: OrderProtocolPersistenceHelper<D, OPM, POPT> + 'static,
+          PSP: PersistableStateTransferProtocol + Send + 'static,
+          DLPH: DecisionLogPersistenceHelper<D, OPM, POPT, LS> + 'static
+{
+    DivisibleStatePersistentLog::init_div_log::<K, T, PS, PSP, DLPH>(executor, db_path)
+}
+
 impl<S, D, OPM, POPT, LS, STM> DivisibleStatePersistentLog<S, D, OPM, POPT, LS, STM>
     where S: DivisibleState + 'static,
           D: ApplicationData + 'static,
