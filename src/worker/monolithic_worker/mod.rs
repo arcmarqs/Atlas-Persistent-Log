@@ -170,7 +170,7 @@ fn write_checkpoint<S>(db: &KVDB, state: Arc<ReadOnly<Checkpoint<S>>>) -> Result
 
     db.set(COLUMN_FAMILY_STATE, LATEST_CHECKPOINT_SEQ_NUM_KEY, seq_no.as_slice())?;
 
-    db.set(COLUMN_FAMILY_STATE, LATEST_CHECKPOINT_DIGEST_KEY, state.digest())?;
+    db.set(COLUMN_FAMILY_STATE, LATEST_CHECKPOINT_DIGEST_KEY, state.digest().as_ref())?;
 
     write_state::<S>(db, state.state())?;
 
