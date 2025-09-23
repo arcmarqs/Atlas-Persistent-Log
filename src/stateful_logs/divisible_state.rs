@@ -288,13 +288,24 @@ impl<S, D, OPM, POPT, LS, STM> DivisibleStateLog<S> for DivisibleStatePersistent
         }
     }
 
-    fn read_local_part(&self, part: S::PartDescription) -> Result<Option<S::StatePart>> {
+    fn read_local_part(&self, part: &S::PartDescription) -> Result<Option<S::StatePart>> {
         match self.inner_log.persistency_mode {
             PersistentLogMode::Strict(_) | PersistentLogMode::Optimistic => {
-                worker::divisible_state_worker::read_state_part::<S>(&self.inner_log.db, &part)
+                worker::divisible_state_worker::read_state_part::<S>(&self.inner_log.db, part)
             }
             PersistentLogMode::None => {
                 Ok(None)
+            }
+        }
+    }
+    
+    fn read_local_parts(&self, parts: Vec<&S::PartDescription>) -> Result<Vec<Option<<S as DivisibleState>::StatePart>>> {
+         match self.inner_log.persistency_mode {
+            PersistentLogMode::Strict(_) | PersistentLogMode::Optimistic => {
+                worker::divisible_state_worker::read_state_parts::<S>(&self.inner_log.db, &parts)
+            }
+            PersistentLogMode::None => {
+                Ok(vec![])
             }
         }
     }

@@ -195,6 +195,36 @@ pub(crate) fn read_state_part<S: DivisibleState>(db: &KVDB, part: &S::PartDescri
     }
 }
 
+pub(crate) fn read_state_parts<S: DivisibleState>(db: &KVDB, parts: &Vec<&S::PartDescription>) -> Result<Vec<Option<S::StatePart>>> {
+    let mut keys = Vec::new();
+    
+    for part in parts {
+        let mut key = Vec::new();
+        serialize_state_part_descriptor::<Vec<u8>, S>(&mut key, part)?;
+        keys.push(key);
+    }
+
+    let batch = keys.iter().map(|key| {
+                (
+                    COLUMN_FAMILY_STATE,
+                    key
+                )});
+
+    let mut result_vec = db.get_all(batch)?;
+    let mut res= Vec::new();
+    for result in result_vec {
+        if let Some(mut value) = result? {
+            let state_part = deserialize_state_part::<&[u8], S>(&mut value.as_slice())?;
+
+            res.push(Some(state_part));
+        } else {
+            res.push(None);
+        }
+    }   
+
+    Ok(res)
+}
+
 fn write_state_parts<S: DivisibleState>(
     db: &KVDB,
     parts: &Vec<Arc<ReadOnly<S::StatePart>>>,
