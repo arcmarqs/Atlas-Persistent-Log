@@ -45,7 +45,7 @@ impl<S> PersistentDivStateHandle<S> where S: DivisibleState {
 
     pub fn queue_descriptor(&self, descriptor: S::StateDescriptor) -> Result<()> {
         let state_message = DivisibleStateMessage::Descriptor(descriptor);
-
+        println!("descriptor quered for storage {:?}", descriptor);
         self.next_worker().send(state_message)
     }
 
@@ -251,7 +251,8 @@ fn write_state_descriptor<S: DivisibleState>(db: &KVDB, descriptor: &S::StateDes
     let mut value = Vec::new();
 
     serialize_state_descriptor::<Vec<u8>, S>(&mut value, &descriptor)?;
-
+    
+    println!("writing descriptor with value {:?}", value);
     db.set(COLUMN_FAMILY_STATE, LATEST_STATE_DESCRIPTOR, value)?;
 
     Ok(())
