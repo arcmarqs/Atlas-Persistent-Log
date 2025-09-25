@@ -44,7 +44,6 @@ impl<S> PersistentDivStateHandle<S> where S: DivisibleState {
     }
 
     pub fn queue_descriptor(&self, descriptor: S::StateDescriptor) -> Result<()> {
-        println!("descriptor quered for storage {:?}", &descriptor.get_digest());
 
         let state_message = DivisibleStateMessage::Descriptor(descriptor);
         self.next_worker().send(state_message)
@@ -140,6 +139,7 @@ impl<S, D, OPM, POPT, LS, POP, PSP, DLPH> DivStatePersistentLogWorker<S, D, OPM,
                     ResponseMessage::RegisteredCallback
                 }
                 DivisibleStateMessage::Descriptor(description) => {
+                    println!("writing state descriptor {:?}", &description.get_digest());
                     write_state_descriptor::<S>(&self.db, &description)?;
 
                     ResponseMessage::RegisteredCallback

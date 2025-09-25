@@ -486,7 +486,7 @@ pub(super) fn write_message<D: ApplicationData,
     POPT: PersistentOrderProtocolTypes<D, OPM>,
     PS: OrderProtocolPersistenceHelper<D, OPM, POPT>>(db: &KVDB, message: &StoredMessage<ProtocolMessage<D, OPM>>) -> Result<()> {
     let mut buf = Vec::with_capacity(Header::LENGTH + message.header().payload_length());
-
+    
     message.header().serialize_into(&mut buf[..Header::LENGTH]).unwrap();
 
     serialize::serialize_message::<&mut [u8], D, OPM>(&mut &mut buf[Header::LENGTH..], message.message())?;

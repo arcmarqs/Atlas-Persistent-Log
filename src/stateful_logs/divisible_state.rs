@@ -208,10 +208,8 @@ impl<S, D, OPM, POPT, LS, STM> DivisibleStateLog<S> for DivisibleStatePersistent
     fn write_descriptor(&self, write_mode: OperationMode, checkpoint: S::StateDescriptor) -> Result<()> {
         match self.inner_log.persistency_mode {
             PersistentLogMode::Strict(_) | PersistentLogMode::Optimistic => {
-                    println!("writing descriptor persistency mode Strict or optimistic");
                 match write_mode {
                     OperationMode::NonBlockingSync(callback) => {
-                        println!("QUEUE DESCRIPTOR {:?}", &checkpoint.get_digest());
                         self.request_tx.queue_descriptor(checkpoint)?;
                     }
                     OperationMode::BlockingSync => {
@@ -220,7 +218,6 @@ impl<S, D, OPM, POPT, LS, STM> DivisibleStateLog<S> for DivisibleStatePersistent
                 }
             }
             PersistentLogMode::None => {
-                println!("writing descriptor persistency mode None");
             }
         }
 
