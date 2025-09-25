@@ -15,9 +15,9 @@ use atlas_core::state_transfer::networking::serialize::StateTransferMessage;
 use atlas_smr_application::app::UpdateBatch;
 use atlas_smr_application::ExecutorHandle;
 use atlas_smr_application::serialize::ApplicationData;
-use atlas_smr_application::state::divisible_state::DivisibleState;
+use atlas_smr_application::state::divisible_state::{DivisibleState, DivisibleStateDescriptor};
 use crate::{PersistentLog, PersistentLogMode, PersistentLogModeTrait, worker};
-use crate::worker::{COLUMN_FAMILY_OTHER, COLUMN_FAMILY_PROOFS, PersistentLogWorker, PersistentLogWorkerHandle, PersistentLogWriteStub};
+use crate::worker::{COLUMN_FAMILY_STATE, COLUMN_FAMILY_OTHER, COLUMN_FAMILY_PROOFS, PersistentLogWorker, PersistentLogWorkerHandle, PersistentLogWriteStub};
 use crate::worker::divisible_state_worker::{DivStatePersistentLogWorker, PersistentDivStateHandle, PersistentDivStateStub};
 
 /// The message containing the information necessary to persist the most recently received
@@ -74,7 +74,7 @@ impl<S, D, OPM, POPT, LS, STM> DivisibleStatePersistentLog<S, D, OPM, POPT, LS, 
             DLPH: DecisionLogPersistenceHelper<D, OPM, POPT, LS> + 'static {
         let mut message_types = POS::message_types();
 
-        let mut prefixes = vec![COLUMN_FAMILY_OTHER, COLUMN_FAMILY_PROOFS];
+        let mut prefixes = vec![COLUMN_FAMILY_OTHER, COLUMN_FAMILY_PROOFS, COLUMN_FAMILY_STATE];
 
         prefixes.append(&mut message_types);
 
@@ -210,6 +210,7 @@ impl<S, D, OPM, POPT, LS, STM> DivisibleStateLog<S> for DivisibleStatePersistent
             PersistentLogMode::Strict(_) | PersistentLogMode::Optimistic => {
                 match write_mode {
                     OperationMode::NonBlockingSync(callback) => {
+                        println!("QUEUE DESCRIPTOR {:?}", &checkpoint.get_digest());
                         self.request_tx.queue_descriptor(checkpoint)?;
                     }
                     OperationMode::BlockingSync => {
