@@ -12,7 +12,7 @@ use atlas_core::persistent_log::{PersistableStateTransferProtocol};
 use atlas_core::smr::networking::serialize::DecisionLogMessage;
 use atlas_core::smr::smr_decision_log::DecisionLogPersistenceHelper;
 use atlas_smr_application::serialize::ApplicationData;
-use atlas_smr_application::state::divisible_state::{DivisibleState, StatePart};
+use atlas_smr_application::state::divisible_state::{DivisibleState, DivisibleStateDescriptor, StatePart};
 use crate::{ResponseMessage};
 use crate::serialize::{deserialize_state_descriptor, deserialize_state_part, serialize_state_descriptor, serialize_state_part, serialize_state_part_descriptor};
 use crate::stateful_logs::divisible_state::DivisibleStateMessage;
@@ -44,7 +44,7 @@ impl<S> PersistentDivStateHandle<S> where S: DivisibleState {
     }
 
     pub fn queue_descriptor(&self, descriptor: S::StateDescriptor) -> Result<()> {
-        println!("descriptor quered for storage {:?}", &descriptor);
+        println!("descriptor quered for storage {:?}", &descriptor.get_digest());
 
         let state_message = DivisibleStateMessage::Descriptor(descriptor);
         self.next_worker().send(state_message)
@@ -173,9 +173,10 @@ pub(crate) fn read_latest_descriptor<S: DivisibleState>(db: &KVDB) -> Result<Opt
 
     if let Some(mut descriptor) = result {
         let state_descriptor = deserialize_state_descriptor::<&[u8], S>(&mut descriptor.as_slice())?;
-
+        println!("read descriptor with result: {:?}", &state_descriptor.get_digest());
         Ok(Some(state_descriptor))
     } else {
+        println!("read empty descriptor");
         Ok(None)
     }
 }
@@ -253,7 +254,7 @@ fn write_state_descriptor<S: DivisibleState>(db: &KVDB, descriptor: &S::StateDes
 
     serialize_state_descriptor::<Vec<u8>, S>(&mut value, &descriptor)?;
     
-    println!("writing descriptor with value {:?}", value);
+    println!("writing descriptor}");
     db.set(COLUMN_FAMILY_STATE, LATEST_STATE_DESCRIPTOR, value)?;
 
     Ok(())
