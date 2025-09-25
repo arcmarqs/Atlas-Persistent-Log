@@ -251,10 +251,10 @@ fn write_state_parts<S: DivisibleState>(
 fn write_state_descriptor<S: DivisibleState>(db: &KVDB, descriptor: &S::StateDescriptor)
                                              -> Result<()> {
     let mut value = Vec::new();
-
-    serialize_state_descriptor::<Vec<u8>, S>(&mut value, &descriptor)?;
     
     println!("writing descriptor");
+    serialize_state_descriptor::<Vec<u8>, S>(&mut value, &descriptor)?;
+    
     db.set(COLUMN_FAMILY_STATE, LATEST_STATE_DESCRIPTOR, value)?;
 
     Ok(())
