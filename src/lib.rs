@@ -258,7 +258,7 @@ impl<D, OPM, POPT, LS, STM> PersistentLog<D, OPM, POPT, LS, STM>
 
         let kvdb = KVDB::new(db_path, prefixes)?;
 
-        let (tx, rx) = channel::new_bounded_sync(1024,
+        let (tx, rx) = channel::new_bounded_sync(32,
         Some("Persistent Log Handle"));
 
         let worker = PersistentLogWorker::<D, OPM, POPT, LS, PSP, POS, DLPH>::new(rx, response_txs, kvdb.clone());
