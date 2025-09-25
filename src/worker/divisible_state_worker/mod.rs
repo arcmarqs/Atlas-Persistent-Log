@@ -44,8 +44,9 @@ impl<S> PersistentDivStateHandle<S> where S: DivisibleState {
     }
 
     pub fn queue_descriptor(&self, descriptor: S::StateDescriptor) -> Result<()> {
+        println!("descriptor quered for storage {:?}", &descriptor);
+
         let state_message = DivisibleStateMessage::Descriptor(descriptor);
-        println!("descriptor quered for storage {:?}", descriptor);
         self.next_worker().send(state_message)
     }
 
